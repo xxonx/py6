@@ -40,7 +40,6 @@ class Vec2D:
         return (self.x, self.y)
 
     # Vector arithmetic, including operator overload
-
     # Addition
     def add(self, vec2):
         return Vec2D(self.x + vec2.x, self.y + vec2.y)
