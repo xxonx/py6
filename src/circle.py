@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
-""" Box shaped rigid body """
+""" Circle shaped rigid body """
+
+import math
 
 # Meta information
 __author__ = "Matthias Wagner"
@@ -12,12 +14,12 @@ __email__ = "wagner.matthias@hotmail.com"
 __status__ = "Development"
 
 
-class Box:
+class Circle:
 
-    def __init__(self, pos1, pos2, velocity=0.0, mass_per_px2=1.0,
+    def __init__(self, pos, radius, velocity=0.0, mass_per_px2=1.0,
                  restitution=1.0):
-        self.pos1 = pos1
-        self.pos2 = pos2
+        self.pos = pos
+        self.radius = radius
 
         self.velocity = velocity
 
@@ -32,7 +34,7 @@ class Box:
         return self.mass * self.velocity
 
     def get_area(self):
-        return self.get_width() * self.get_height()
+        return 2 * self.radius * math.pi
 
     def get_width(self):
         return abs(self.pos1.x - self.pos2.x)
