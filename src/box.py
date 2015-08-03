@@ -23,7 +23,10 @@ class Box:
 
         self.mass_per_px2 = mass_per_px2
         self.mass = self.get_area() * mass_per_px2
-        self.mass_inv = 1.0 / self.mass
+        if self.mass == 0:
+            self.mass_inv = 0
+        else:
+            self.mass_inv = 1.0 / self.mass
 
         self.restitution = restitution
 
@@ -39,3 +42,7 @@ class Box:
 
     def get_height(self):
         return abs(self.pos1.y - self.pos2.y)
+
+    def add_to_position(self, add_vec):
+        self.pos1 += add_vec
+        self.pos2 += add_vec
