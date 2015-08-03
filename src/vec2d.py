@@ -87,10 +87,6 @@ class Vec2D:
     def dot_product(self, vec2):
         return (self.x * vec2.x) + (self.y * vec2.y)
 
-    # Cross product
-    def cross_product(self, vec2):
-        return self.x * vec2.y - self.y * vec2.x
-
     # Rotation
     def rotate90(self):
         return Vec2D(-self.y, self.x)
@@ -119,7 +115,7 @@ class Vec2D:
         return math.degrees(math.atan2(self.y, self.x))
 
     def get_angle_between(self, vec2):
-        cross_product = self.cross_product(vec2)
+        cross = self.x * vec2.y - self.y * vec2.x
         dot_product = self.dot_product(vec2)
 
         return math.degrees(math.atan2(cross_product, dot_product))
