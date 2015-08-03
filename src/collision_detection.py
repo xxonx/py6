@@ -3,6 +3,7 @@
 """ Handles collision detection """
 
 from box import Box
+from circle import Circle
 
 # Meta information
 __author__ = "Matthias Wagner"
@@ -21,6 +22,8 @@ class collision_detection:
     def is_collision(self, obj_a, obj_b):
         if self.is_box(obj_a) and self.is_box(obj_b):
             return self.is_collision_box_vs_box(obj_a, obj_b)
+        elif self.is_circle(obj_a) and self.is_circle(obj_b):
+            return self.is_collision_circle_vs_circle(obj_a, obj_b)
         else:
             return False
 
@@ -34,9 +37,25 @@ class collision_detection:
         # No separating axis found -> collision
         return True
 
+    def is_collision_circle_vs_circle(self, circle_a, circle_b):
+        radii_sum = circle_a.radius + circle_b.radius
+        radii_sum *= radii_sum
+        distance_squared = (circle_a.pos.x + circle_b.pos.x)**2 + \
+            (circle_a.pos.y + circle_b.pos.y)**2
+
+        # If the distance between the two center points is smaller than
+        # the sum of the two radii -> collision
+        return radii_sum < distance_squared
+
     # Class checking
     def is_box(self, obj):
         if isinstance(obj, Box):
+            return True
+        else:
+            return False
+
+    def is_circle(self, obj):
+        if isinstance(obj, Circle):
             return True
         else:
             return False
