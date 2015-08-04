@@ -4,6 +4,7 @@
 
 from box import Box
 from circle import Circle
+from vec2d import Vec2D
 
 # Meta information
 __author__ = "Matthias Wagner"
@@ -57,7 +58,8 @@ class CollisionDetection:
         # TODO: calculate normal and penetration
         normal = 0
         penetration = 0
-        self._handle_collision(box_a, box_b, normal, penetration)
+        collision = Collision(box_a, box_b, normal, penetration)
+        self._handle_collision(collision)
 
     def _detect_collision_circle_vs_circle(self, circle_a, circle_b):
         radii_sum = circle_a.radius + circle_b.radius
@@ -72,21 +74,31 @@ class CollisionDetection:
             normal = circle_a.pos - circle_b.pos
             penetration = radii_sum - distance_squared**0.5
 
-            self._handle_collision(circle_a, circle_b, normal, penetration)
+            collision = Collision(circle_a, circle_b, normal, penetration)
+            self._handle_collision(collision)
 
     def _detect_collision_box_vs_circle(self, box, circle):
         # TODO: implement box vs circle collision detection
         pass
 
     # Collision handling
-    def _handle_collision(self, obj_a, obj_b, normal, penetration):
+    def _handle_collision(self, collision):
+        obj_a = collision.obj_a
+        obj_b = collision.obj_b
+
         # Calculate the objects velocity along the normal
-        obj_a.velocity_on_normal = obj_a.velocity.project_onto(normal)
-        obj_b.velocity_on_normal = obj_b.velocity.project_onto(normal)
+        obj_a.velocity_on_normal = \
+            obj_a.velocity.project_onto(collision.normal)
+        obj_b.velocity_on_normal = \
+            obj_b.velocity.project_onto(collision.normal)
+
+        self._positional_correction_pre_update(collision)
 
         # Calculate new velocities
         obj_a.velocity = self._update_velocity(obj_a, obj_b)
         obj_b.velocity = self._update_velocity(obj_b, obj_a)
+
+        self._positional_correction_post_update(collision)
 
     def _update_velocity(self, obj_a, obj_b):
         relative_velocity_on_normal = \
@@ -99,14 +111,35 @@ class CollisionDetection:
                  obj_b.velocity_on_normal * obj_b.mass)) \
             .scale(1 / (obj_a.mass + obj_b.mass))
 
-    """ unused at the moment """
-    def _positional_correction(self, collision):
-        correction_percent = 0.2
-        threshold = 0.1
+    def _positional_correction_pre_update(self, collision):
+        """ Sets the object's position back to the collision point """
+        obj_a = collision.obj_a
+        obj_b = collision.obj_b
 
-        if collision.penetration > threshold:
-            correction_factor = collision\
-                .get_positional_correction_factor(
-                    threshold, correction_percent)
+        relative_velocity_on_normal = \
+            obj_b.velocity_on_normal - obj_a.velocity_on_normal
+        collision.penetration_time = \
+            collision.penetration / relative_velocity_on_normal.get_length()
 
-            collision.apply_correction_factor(correction_factor)
+        # Set object position back to collision point
+        obj_a.add_to_position(obj_a.velocity * collision.penetration_time * -1)
+        obj_b.add_to_position(obj_b.velocity * collision.penetration_time * -1)
+
+    def _positional_correction_post_update(self, collision):
+        """ Moves the object to the correct position, using the new
+        velocities """
+        obj_a = collision.obj_a
+        obj_b = collision.obj_b
+
+        # Set object position back to collision point
+        obj_a.add_to_position(obj_a.velocity * collision.penetration_time)
+        obj_b.add_to_position(obj_b.velocity * collision.penetration_time)
+
+
+class Collision:
+
+    def __init__(self, obj_a, obj_b, normal, penetration):
+        self.obj_a = obj_a
+        self.obj_b = obj_b
+        self.normal = normal
+        self.penetration = penetration
