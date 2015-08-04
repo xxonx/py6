@@ -20,11 +20,11 @@ __status__ = "Development"
 class Vec2D:
     """ 2D-Vector class """
 
-    def __init__(self, x, y, isInt=False):
+    def __init__(self, x, y, is_int=False):
         self.x = x
         self.y = y
 
-        if isInt:
+        if is_int:
             self.x = int(round(self.x))
             self.y = int(round(self.y))
         else:
@@ -36,8 +36,11 @@ class Vec2D:
         return 'Vec2D(%s, %s)' % (self.x, self.y)
 
     # Coordinates as tuple
-    def get_tuple(self):
-        return (self.x, self.y)
+    def get_tuple(self, as_int=False):
+        if as_int:
+            return (int(round(self.x)), int(round(self.y)))
+        else:
+            return (self.x, self.y)
 
     # Vector arithmetic, including operator overload
     # Addition
@@ -87,6 +90,15 @@ class Vec2D:
     def dot_product(self, vec2):
         return (self.x * vec2.x) + (self.y * vec2.y)
 
+    # Vector projection
+    def project_onto(self, vec2):
+        vec2_length_squared = vec2.dot_product(vec2)
+
+        if(vec2_length_squared > 0):
+            return vec2 * (self.dot_product(vec2) / vec2_length_squared)
+        else:
+            return self * 0
+
     # Rotation
     def rotate90(self):
         return Vec2D(-self.y, self.x)
@@ -118,4 +130,4 @@ class Vec2D:
         cross = self.x * vec2.y - self.y * vec2.x
         dot_product = self.dot_product(vec2)
 
-        return math.degrees(math.atan2(cross_product, dot_product))
+        return math.degrees(math.atan2(cross, dot_product))
