@@ -17,17 +17,28 @@ __status__ = "Development"
 
 class CollisionDetection:
 
+    # Collision
+    def detect_and_handle_collision(self, obj_a, obj_b):
+        if(self._is_collision(obj_a, obj_b)):
+            self._handle_collision(obj_a, obj_b)
+
     # Collision detection
 
-    def is_collision(self, obj_a, obj_b):
-        if self.is_box(obj_a) and self.is_box(obj_b):
-            return self.is_collision_box_vs_box(obj_a, obj_b)
-        elif self.is_circle(obj_a) and self.is_circle(obj_b):
-            return self.is_collision_circle_vs_circle(obj_a, obj_b)
-        else:
-            return False
+    def _is_collision(self, obj_a, obj_b):
+        if self._is_box(obj_a):
+            if self._is_box(obj_b):
+                return self._is_collision_box_vs_box(obj_a, obj_b)
+            elif self._is_circle(obj_b):
+                return self._is_collision_box_vs_circle(obj_a, obj_b)
+        elif self._is_circle(obj_a):
+            if self._is_box(obj_b):
+                return self._is_collision_box_vs_circle(obj_b, obj_a)
+            elif self._is_circle(obj_b):
+                return self._is_collision_circle_vs_circle(obj_a, obj_b)
 
-    def is_collision_box_vs_box(self, box_a, box_b):
+        return False
+
+    def _is_collision_box_vs_box(self, box_a, box_b):
         # Look for separating axis
         if box_a.pos2.x < box_b.pos1.x or box_a.pos1.x > box_b.pos2.x:
             return False
@@ -37,7 +48,7 @@ class CollisionDetection:
         # No separating axis found -> collision
         return True
 
-    def is_collision_circle_vs_circle(self, circle_a, circle_b):
+    def _is_collision_circle_vs_circle(self, circle_a, circle_b):
         radii_sum = circle_a.radius + circle_b.radius
         radii_sum_squared = radii_sum * radii_sum
         distance_squared = (circle_a.pos.x - circle_b.pos.x)**2 + \
@@ -47,14 +58,19 @@ class CollisionDetection:
         # the sum of the two radii -> collision
         return radii_sum_squared > distance_squared
 
+    def _is_collision_box_vs_circle(self, box, circle):
+        # TODO: implement box vs circle collision detection
+
+        return False
+
     # Class checking
-    def is_box(self, obj):
+    def _is_box(self, obj):
         if isinstance(obj, Box):
             return True
         else:
             return False
 
-    def is_circle(self, obj):
+    def _is_circle(self, obj):
         if isinstance(obj, Circle):
             return True
         else:
@@ -62,27 +78,27 @@ class CollisionDetection:
 
     # Collision handling
 
-    def handle_collision(self, obj_a, obj_b):
-        normal = self.get_collision_normal(obj_a, obj_b)
+    def _handle_collision(self, obj_a, obj_b):
+        normal = self._get_collision_normal(obj_a, obj_b)
         # TODO: implement penetration
-        # penetration = self.get_collision_penetration(obj_a, obj_b)
+        # penetration = self._get_collision_penetration(obj_a, obj_b)
 
         # Calculate the objects velocity along the normal
         obj_a.velocity_on_normal = obj_a.velocity.project_onto(normal)
         obj_b.velocity_on_normal = obj_b.velocity.project_onto(normal)
 
         # Calculate new velocities
-        obj_a.velocity = self.update_velocity(obj_a, obj_b)
-        obj_b.velocity = self.update_velocity(obj_b, obj_a)
+        obj_a.velocity = self._update_velocity(obj_a, obj_b)
+        obj_b.velocity = self._update_velocity(obj_b, obj_a)
 
-    def get_collision_normal(self, obj_a, obj_b):
+    def _get_collision_normal(self, obj_a, obj_b):
         # TODO: calculate normal
         return obj_a.pos - obj_b.pos
 
-    def get_collision_penetration(self, obj_a, obj_b):
+    def _get_collision_penetration(self, obj_a, obj_b):
         pass  # TODO: calculate penetration
 
-    def update_velocity(self, obj_a, obj_b):
+    def _update_velocity(self, obj_a, obj_b):
         relative_velocity_on_normal = \
             obj_b.velocity_on_normal - obj_a.velocity_on_normal
 
@@ -94,7 +110,7 @@ class CollisionDetection:
             .scale(1 / (obj_a.mass + obj_b.mass))
 
     """ unused at the moment """
-    def positional_correction(self, collision):
+    def _positional_correction(self, collision):
         correction_percent = 0.2
         threshold = 0.1
 
