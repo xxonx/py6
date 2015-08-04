@@ -3,6 +3,7 @@
 """ Circle shaped rigid body """
 
 import math
+from vec2d import Vec2D
 
 # Meta information
 __author__ = "Matthias Wagner"
@@ -16,7 +17,7 @@ __status__ = "Development"
 
 class Circle:
 
-    def __init__(self, pos, radius, velocity=0.0, mass_per_px2=1.0,
+    def __init__(self, pos, radius, velocity=Vec2D(0, 0), mass_per_px2=0.1,
                  restitution=1.0):
         self.pos = pos
         self.radius = radius

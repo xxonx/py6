@@ -2,6 +2,8 @@
 
 """ Box shaped rigid body """
 
+from vec2d import Vec2D
+
 # Meta information
 __author__ = "Matthias Wagner"
 __copyright__ = "Copyright 2015"
@@ -14,7 +16,7 @@ __status__ = "Development"
 
 class Box:
 
-    def __init__(self, pos1, pos2, velocity=0.0, mass_per_px2=1.0,
+    def __init__(self, pos1, pos2, velocity=Vec2D(0, 0), mass_per_px2=0.1,
                  restitution=1.0):
         self.pos1 = pos1
         self.pos2 = pos2
